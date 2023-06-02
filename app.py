@@ -68,15 +68,15 @@ def getViewersData(box_ids, store_acc_info):
     while retries <= MAX_RETRIES:
         print('hitting API')
         exportStatusResponse = requests.get(url, headers=headers)
-
+        print(exportStatusResponse)
         if exportStatusResponse.ok:
             exportStatus = exportStatusResponse.json()
-
             if exportStatus["state"] == 'started':
                 retries += 1
                 waitTimeMs = WAIT_TIME_MS * (2 ** retries)
                 sleep(30)
             else:
+                print(exportStatus)
                 data = []
                 for item in exportStatus["data"]:
 
@@ -129,10 +129,9 @@ def getOTSData(box_ids, store_acc_info):
     while retries <= MAX_RETRIES:
         print('hitting API')
         exportStatusResponse = requests.get(url, headers=headers)
-        print(exportStatusResponse)
+
         if exportStatusResponse.ok:
             exportStatus = exportStatusResponse.json()
-            print(exportStatusResponse)
 
             if exportStatus["state"] == 'started':
                 retries += 1
