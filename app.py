@@ -79,7 +79,6 @@ def getViewersData(box_ids, store_acc_info):
             else:
                 data = []
                 for item in exportStatus["data"]:
-                    print(item)
 
                     filtered_list = [d for d in box_ids if d.get(
                         'location_id') == item["location_id"]]
@@ -141,7 +140,6 @@ def getOTSData(box_ids, store_acc_info):
             else:
                 data = []
                 for item in exportStatus["data"]:
-                    print(item)
 
                     filtered_list = [d for d in box_ids if d.get(
                         'location_id') == item["location_id"]]
@@ -175,25 +173,30 @@ def main():
     # /////////////////////////////////////////////////////////////////////////////////////
     # GETTING All BOX ID's
     # /////////////////////////////////////////////////////////////////////////////////////
-
+    print("Getting Box ID's")
     box_ids = getAllBoxId()
-
+    print("Finished Box ID's")
     # /////////////////////////////////////////////////////////////////////////////////////
     # GETTING All STORE ACCESSORY INFORMATION
     # /////////////////////////////////////////////////////////////////////////////////////
-
+    print("Getting Store Meta information")
     store_acc_info = getStoreInformation()
-
+    print("Finished Store Meta information")
     # /////////////////////////////////////////////////////////////////////////////////////
     # GETTING DATA FROM API
     # /////////////////////////////////////////////////////////////////////////////////////
+    print("Getting Viewers Data")
     viewers_data = getViewersData(box_ids, store_acc_info)
-    ots_data = getOTSData(box_ids, store_acc_info)
+    print("Finished Viewers Data")
 
+    print("Getting OTS Data")
+    ots_data = getOTSData(box_ids, store_acc_info)
+    print("Finished OTS Data")
     # /////////////////////////////////////////////////////////////////////////////////////
     # SETTING UP DATABASE CONNECTION
     # /////////////////////////////////////////////////////////////////////////////////////
 
+    print("Inserting Data")
     engine = db.create_engine(
         'mysql+pymysql://doadmin:AVNS_NWrP4l2Rg35GYOrXSMA@quividi-data-do-user-1422871-0.b.db.ondigitalocean.com:25060/defaultdb')
 
