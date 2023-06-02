@@ -10,9 +10,6 @@ from sqlalchemy import exc
 import pymysql
 from sqlalchemy.orm import sessionmaker
 
-import logging
-import sys
-
 app = Flask(__name__)
 
 end = datetime.now().replace(microsecond=0)
@@ -35,7 +32,6 @@ def getStoreInformation():
     engine = db.create_engine(
         'mysql+pymysql://doadmin:AVNS_TaeOZGWPqjzs0Bs@mysql-db-do-user-1422871-0.b.db.ondigitalocean.com:25060/defaultdb')
 
-    '''
     connection = engine.connect().execution_options(autocommit=False)
     metadata = db.MetaData()
     print('\nconnected')
@@ -51,12 +47,12 @@ def getStoreInformation():
                  autoload_with=engine, mysql_autoload=True)
     query = v.select()
     result = session.execute(query)
-    '''
-    result = engine.execute('SELECT * FROM cv_accessory_ref')
 
-    rows = result.fetchall()
+    #result = engine.execute('SELECT * FROM cv_accessory_ref')
 
-    return rows
+    #rows = result.fetchall()
+
+    return result
 
 def getViewersData(box_ids, store_acc_info):
     url = f'https://vidicenter.quividi.com/api/v1/data/?locations=91724,91723,91724,91564,91710,91712,91693,91681,91915,91920,91980,92583,91643,91636,91555,91432,91557,91610,91611,91612,92025,91632,91430,91663,91782,91911,91713,91678,92035,91680,91620,91433,91436,91439,91440,91719,91959,92376,91718,91412,91411,91414,91630,91391,91390,91388,91384,91393,91698,91700,91580,91581,91626,91582,91559,91670,91646,91645,91501,91536,91500,91539,91545,92034,91575,91576,91577,91578,91537,91616,91618,91409,91410,92224,86727,86735,86737,86738,86740,86744,86747,85333,85339,85341,86729,91044,91124,89243,91292,91560,91563,91839,91840,91843,91846,91871,91872,91874,91877,91883,91884,91886,91914,91986,91987,91988,91989,92115,92114,92033,91428,92046,92233,92327,92001,91561,91880,91562,91827,91556,91634,91621,91426,91565&start={start.isoformat()}&end={end.isoformat()}&data_type=viewers&time_resolution=finest'
