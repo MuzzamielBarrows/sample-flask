@@ -129,9 +129,10 @@ def getOTSData(box_ids, store_acc_info):
     while retries <= MAX_RETRIES:
         print('hitting API')
         exportStatusResponse = requests.get(url, headers=headers)
-
+        print(exportStatusResponse)
         if exportStatusResponse.ok:
             exportStatus = exportStatusResponse.json()
+            print(exportStatusResponse)
 
             if exportStatus["state"] == 'started':
                 retries += 1
