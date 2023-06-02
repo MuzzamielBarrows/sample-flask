@@ -75,7 +75,7 @@ def getViewersData(box_ids, store_acc_info):
             if exportStatus["state"] == 'started':
                 retries += 1
                 waitTimeMs = WAIT_TIME_MS * (2 ** retries)
-                sleep(waitTimeMs / 1000)
+                sleep(30)
             else:
                 data = []
                 for item in exportStatus["data"]:
