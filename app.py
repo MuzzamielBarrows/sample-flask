@@ -71,10 +71,10 @@ def getViewersData(box_ids, store_acc_info):
         print(exportStatusResponse)
         if exportStatusResponse.ok:
             exportStatus = exportStatusResponse.json()
-            if exportStatus["state"] == 'started':
+            if exportStatus["state"] == 'started' or 'in_progress':
                 retries += 1
                 waitTimeMs = WAIT_TIME_MS * (2 ** retries)
-                sleep(30)
+                sleep(60)
             else:
                 print(exportStatus)
                 data = []
