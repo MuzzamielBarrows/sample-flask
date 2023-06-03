@@ -111,7 +111,7 @@ def getViewersData(box_ids, store_acc_info):
                     return data
                 retries += 1
                 waitTimeMs = WAIT_TIME_MS * (2 ** retries)
-                sleep(100)
+                sleep(60)
                 print("Data was not retrieved in this iteration, trying again...")
 
             else:
@@ -170,7 +170,7 @@ def getOTSData(box_ids, store_acc_info):
 
                 retries += 1
                 waitTimeMs = WAIT_TIME_MS * (2 ** retries)
-                sleep(100)
+                sleep(60)
                 print("Data was not retrieved in this iteration, trying again...")
 
             else:
@@ -247,6 +247,7 @@ def main():
     viewers_query = db.insert(viewers_table).values(viewers_data).prefix_with('IGNORE')
 
     try:
+        print("Inserting Viewers data into DB")
         session.execute(viewers_query)
         session.commit()
     except exc.IntegrityError as e:
@@ -261,6 +262,7 @@ def main():
     ots_query = db.insert(ots_table).values(ots_data).prefix_with('IGNORE')
 
     try:
+        print("Inserting OTS data into DB")
         session.execute(ots_query)
         session.commit()
     except exc.IntegrityError as e:
