@@ -65,55 +65,56 @@ def getViewersData(box_ids, store_acc_info):
     WAIT_TIME_MS = 30000
     retries = 0
 
-    while retries <= MAX_RETRIES:
-        print('hitting API')
-        exportStatusResponse = requests.get(url, headers=headers)
-        print(exportStatusResponse)
-        if exportStatusResponse.ok:
-            exportStatus = exportStatusResponse.json()
-            if exportStatus["state"] == 'started' or 'in_progress':
-                retries += 1
-                waitTimeMs = WAIT_TIME_MS * (2 ** retries)
-                sleep(100)
+    try:
+        while retries <= MAX_RETRIES:
+            print('hitting API')
+            exportStatusResponse = requests.get(url, headers=headers)
+            print(exportStatusResponse)
+            if exportStatusResponse.ok:
+                exportStatus = exportStatusResponse.json()
+                if exportStatus["state"] == 'started' or 'in_progress':
+                    retries += 1
+                    waitTimeMs = WAIT_TIME_MS * (2 ** retries)
+                    sleep(100)
+                else:
+                    print(exportStatus)
+                    data = []
+                    for item in exportStatus["data"]:
+                        filtered_list = [d for d in box_ids if d.get(
+                            'location_id') == item["location_id"]]
+
+                        filtered_acc_info = [
+                            d for d in store_acc_info if str(d[0]) == str(filtered_list[0]["id"])]
+
+                        data.append({
+                            "id": str(item["location_id"]) + "-" + item["period_start"] + "-" + str(item.get("dwell_time_in_tenths_of_sec")) + "-" + str(item.get("attention_time_in_tenths_of_sec")),
+                            "location_id": item["location_id"],
+                            "period_start": item["period_start"],
+                            "gender": item.get("gender"),
+                            "age": item.get("age"),
+                            "age_value": item.get("age_value"),
+                            "very_unhappy": item.get("very_unhappy"),
+                            "unhappy": item.get("unhappy"),
+                            "neutral": item.get("neutral"),
+                            "happy": item.get("happy"),
+                            "very_happy": item.get("very_happy"),
+                            "dwell_time_in_tenths_of_sec": item.get("dwell_time_in_tenths_of_sec"),
+                            "attention_time_in_tenths_of_sec": item.get("attention_time_in_tenths_of_sec"),
+                            # ---ADDED
+                            "display_pk": filtered_acc_info[0][1] if len(filtered_acc_info) > 0 else None,
+                            "retailer_id": filtered_acc_info[0][2] if len(filtered_acc_info) > 0 else None,
+                            "store_id": filtered_acc_info[0][3] if len(filtered_acc_info) > 0 else None,
+                            "region": filtered_acc_info[0][4] if len(filtered_acc_info) > 0 else None,
+                            "touchpoint_id": filtered_acc_info[0][5] if len(filtered_acc_info) > 0 else None,
+                        })
+
+                    print(data)
+                    return data
             else:
-                print(exportStatus)
-                data = []
-                for item in exportStatus["data"]:
-
-                    filtered_list = [d for d in box_ids if d.get(
-                        'location_id') == item["location_id"]]
-
-                    filtered_acc_info = [
-                        d for d in store_acc_info if str(d[0]) == str(filtered_list[0]["id"])]
-
-                    data.append({
-                        "id": str(item["location_id"]) + "-" + item["period_start"] + "-" + str(item.get("dwell_time_in_tenths_of_sec")) + "-" + str(item.get("attention_time_in_tenths_of_sec")),
-                        "location_id": item["location_id"],
-                        "period_start": item["period_start"],
-                        "gender": item.get("gender"),
-                        "age": item.get("age"),
-                        "age_value": item.get("age_value"),
-                        "very_unhappy": item.get("very_unhappy"),
-                        "unhappy": item.get("unhappy"),
-                        "neutral": item.get("neutral"),
-                        "happy": item.get("happy"),
-                        "very_happy": item.get("very_happy"),
-                        "dwell_time_in_tenths_of_sec": item.get("dwell_time_in_tenths_of_sec"),
-                        "attention_time_in_tenths_of_sec": item.get("attention_time_in_tenths_of_sec"),
-                        # ---ADDED
-                        "display_pk": filtered_acc_info[0][1] if len(filtered_acc_info) > 0 else None,
-                        "retailer_id": filtered_acc_info[0][2] if len(filtered_acc_info) > 0 else None,
-                        "store_id": filtered_acc_info[0][3] if len(filtered_acc_info) > 0 else None,
-                        "region": filtered_acc_info[0][4] if len(filtered_acc_info) > 0 else None,
-                        "touchpoint_id": filtered_acc_info[0][5] if len(filtered_acc_info) > 0 else None,
-                    })
-
-                print(data)
-                return data
-        else:
-            raise Exception(
-                f"Failed to fetch export status. HTTP error {exportStatusResponse.status_code}: {exportStatusResponse.text}")
-
+                raise Exception(
+                    f"Failed to fetch export status. HTTP error {exportStatusResponse.status_code}: {exportStatusResponse.text}")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
 
 def getOTSData(box_ids, store_acc_info):
 
