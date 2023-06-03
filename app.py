@@ -244,14 +244,30 @@ def main():
 
     # session.commit()
 
-    viewers_query = db.insert(viewers_table).values(viewers_data).prefix_with('IGNORE')
+    #viewers_query = db.insert(viewers_table).values(viewers_data).prefix_with('IGNORE')
+
+    #try:
+    #    print("Inserting Viewers data into DB")
+    #    session.execute(viewers_query)
+    #    session.commit()
+    #except exc.IntegrityError as e:
+    #    # Handle the exception here
+    #    print("Duplicate entry error:", e)
+    #    session.rollback()
+
+    # Split the viewers_data into batches
+    batch_size = 1000
+    batches = [viewers_data[i:i + batch_size] for i in range(0, len(viewers_data), batch_size)]
 
     try:
         print("Inserting Viewers data into DB")
-        session.execute(viewers_query)
-        session.commit()
+        for batch in batches:
+            print("Inserting viewers batch...")
+            viewers_query = db.insert(viewers_table).values(batch).prefix_with('IGNORE')
+            session.execute(viewers_query)
+            session.commit()
     except exc.IntegrityError as e:
-        # Handle the exception here
+        # Handle the integrity error here
         print("Duplicate entry error:", e)
         session.rollback()
 
@@ -259,14 +275,28 @@ def main():
     # INSERTING QUIVIDI OTS DATA
     # /////////////////////////////////////////////////////////////////////////////////////
 
-    ots_query = db.insert(ots_table).values(ots_data).prefix_with('IGNORE')
+    #ots_query = db.insert(ots_table).values(ots_data).prefix_with('IGNORE')
+
+    #try:
+    #    print("Inserting OTS data into DB")
+    #    session.execute(ots_query)
+    #    session.commit()
+    #except exc.IntegrityError as e:
+        # Handle the exception here
+    #    print("Duplicate entry error:", e)
+    #    session.rollback()
+
+    batches = [ots_data[i:i + batch_size] for i in range(0, len(ots_data), batch_size)]
 
     try:
         print("Inserting OTS data into DB")
-        session.execute(ots_query)
-        session.commit()
+        for batch in batches:
+            print("Inserting OTS batch...")
+            ots_query = db.insert(ots_table).values(batch).prefix_with('IGNORE')
+            session.execute(ots_query)
+            session.commit()
     except exc.IntegrityError as e:
-        # Handle the exception here
+        # Handle the integrity error here
         print("Duplicate entry error:", e)
         session.rollback()
 
