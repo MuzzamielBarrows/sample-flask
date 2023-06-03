@@ -54,6 +54,7 @@ def getStoreInformation():
 
     return rows
 
+
 def getViewersData(box_ids, store_acc_info):
     url = f'https://vidicenter.quividi.com/api/v1/data/?locations=91724,91723,91724,91564,91710,91712,91693,91681,91915,91920,91980,92583,91643,91636,91555,91432,91557,91610,91611,91612,92025,91632,91430,91663,91782,91911,91713,91678,92035,91680,91620,91433,91436,91439,91440,91719,91959,92376,91718,91412,91411,91414,91630,91391,91390,91388,91384,91393,91698,91700,91580,91581,91626,91582,91559,91670,91646,91645,91501,91536,91500,91539,91545,92034,91575,91576,91577,91578,91537,91616,91618,91409,91410,92224,86727,86735,86737,86738,86740,86744,86747,85333,85339,85341,86729,91044,91124,89243,91292,91560,91563,91839,91840,91843,91846,91871,91872,91874,91877,91883,91884,91886,91914,91986,91987,91988,91989,92115,92114,92033,91428,92046,92233,92327,92001,91561,91880,91562,91827,91556,91634,91621,91426,91565&start={start.isoformat()}&end={end.isoformat()}&data_type=viewers&time_resolution=finest'
     print(url)
@@ -61,23 +62,20 @@ def getViewersData(box_ids, store_acc_info):
         b"barrowssouthafrica_gibbon:735f0c293ccdb9a04bcb18f3077c6da7c3d37c47").decode("ascii")
     headers = {"Authorization": auth_header}
 
-    MAX_RETRIES = 3
+    MAX_RETRIES = 5
     WAIT_TIME_MS = 30000
     retries = 0
 
     try:
         while retries <= MAX_RETRIES:
-            print('hitting API')
+            print("Retrieving Data from the Quividi API...")
             exportStatusResponse = requests.get(url, headers=headers)
-            print(exportStatusResponse)
+
             if exportStatusResponse.ok:
                 exportStatus = exportStatusResponse.json()
-                if exportStatus["state"] == 'started' or 'in_progress':
-                    retries += 1
-                    waitTimeMs = WAIT_TIME_MS * (2 ** retries)
-                    sleep(100)
-                else:
-                    print(exportStatus)
+
+                if exportStatus["state"] == 'finished':
+                    print("Data successfully retrieved from the API...")
                     data = []
                     for item in exportStatus["data"]:
                         filtered_list = [d for d in box_ids if d.get(
@@ -87,7 +85,9 @@ def getViewersData(box_ids, store_acc_info):
                             d for d in store_acc_info if str(d[0]) == str(filtered_list[0]["id"])]
 
                         data.append({
-                            "id": str(item["location_id"]) + "-" + item["period_start"] + "-" + str(item.get("dwell_time_in_tenths_of_sec")) + "-" + str(item.get("attention_time_in_tenths_of_sec")),
+                            "id": str(item["location_id"]) + "-" + item["period_start"] + "-" + str(
+                                item.get("dwell_time_in_tenths_of_sec")) + "-" + str(
+                                item.get("attention_time_in_tenths_of_sec")),
                             "location_id": item["location_id"],
                             "period_start": item["period_start"],
                             "gender": item.get("gender"),
@@ -100,7 +100,7 @@ def getViewersData(box_ids, store_acc_info):
                             "very_happy": item.get("very_happy"),
                             "dwell_time_in_tenths_of_sec": item.get("dwell_time_in_tenths_of_sec"),
                             "attention_time_in_tenths_of_sec": item.get("attention_time_in_tenths_of_sec"),
-                            # ---ADDED
+
                             "display_pk": filtered_acc_info[0][1] if len(filtered_acc_info) > 0 else None,
                             "retailer_id": filtered_acc_info[0][2] if len(filtered_acc_info) > 0 else None,
                             "store_id": filtered_acc_info[0][3] if len(filtered_acc_info) > 0 else None,
@@ -108,16 +108,20 @@ def getViewersData(box_ids, store_acc_info):
                             "touchpoint_id": filtered_acc_info[0][5] if len(filtered_acc_info) > 0 else None,
                         })
 
-                    print(data)
                     return data
+                retries += 1
+                waitTimeMs = WAIT_TIME_MS * (2 ** retries)
+                sleep(100)
+                print("Data was not retrieved in this iteration, trying again...")
+
             else:
                 raise Exception(
                     f"Failed to fetch export status. HTTP error {exportStatusResponse.status_code}: {exportStatusResponse.text}")
     except Exception as e:
         print(f"An error occurred: {str(e)}")
 
-def getOTSData(box_ids, store_acc_info):
 
+def getOTSData(box_ids, store_acc_info):
     url = f'https://vidicenter.quividi.com/api/v1/data/?locations=91724,91723,91724,91564,91710,91712,91693,91681,91915,91920,91980,92583,91643,91636,91555,91432,91557,91610,91611,91612,92025,91632,91430,91663,91782,91911,91713,91678,92035,91680,91620,91433,91436,91439,91440,91719,91959,92376,91718,91412,91411,91414,91630,91391,91390,91388,91384,91393,91698,91700,91580,91581,91626,91582,91559,91670,91646,91645,91501,91536,91500,91539,91545,92034,91575,91576,91577,91578,91537,91616,91618,91409,91410,92224,86727,86735,86737,86738,86740,86744,86747,85333,85339,85341,86729,91044,91124,89243,91292,91560,91563,91839,91840,91843,91846,91871,91872,91874,91877,91883,91884,91886,91914,91986,91987,91988,91989,92115,92114,92033,91428,92046,92233,92327,92001,91561,91880,91562,91827,91556,91634,91621,91426,91565&start={start.isoformat()}&end={end.isoformat()}&data_type=ots&time_resolution=15m'
     print(url)
     auth_header = "Basic " + base64.b64encode(
@@ -128,47 +132,53 @@ def getOTSData(box_ids, store_acc_info):
     WAIT_TIME_MS = 10000
     retries = 0
 
-    while retries <= MAX_RETRIES:
-        print('hitting API')
-        exportStatusResponse = requests.get(url, headers=headers)
+    try:
+        while retries <= MAX_RETRIES:
+            print("Retrieving Data from the Quividi API...")
+            exportStatusResponse = requests.get(url, headers=headers)
 
-        if exportStatusResponse.ok:
-            exportStatus = exportStatusResponse.json()
+            if exportStatusResponse.ok:
+                exportStatus = exportStatusResponse.json()
 
-            if exportStatus["state"] == 'started':
+                if exportStatus["state"] == 'finished':
+                    print("Data successfully retrieved from the API...")
+                    data = []
+                    for item in exportStatus["data"]:
+                        filtered_list = [d for d in box_ids if d.get(
+                            'location_id') == item["location_id"]]
+
+                        filtered_acc_info = [
+                            d for d in store_acc_info if str(d[0]) == str(filtered_list[0]["id"])]
+
+                        data.append({
+                            "id": str(item["location_id"]) + "-" + item["period_start"],
+                            "location_id": item["location_id"],
+                            "period_start": item["period_start"],
+                            "status": item.get("status"),
+                            "ots_count": item.get("ots_count"),
+                            "watcher_count": item.get("watcher_count"),
+                            "duration": item.get("duration"),
+                            # ---ADDED
+                            "display_pk": filtered_acc_info[0][1] if len(filtered_acc_info) > 0 else None,
+                            "retailer_id": filtered_acc_info[0][2] if len(filtered_acc_info) > 0 else None,
+                            "store_id": filtered_acc_info[0][3] if len(filtered_acc_info) > 0 else None,
+                            "region": filtered_acc_info[0][4] if len(filtered_acc_info) > 0 else None,
+                            "touchpoint_id": filtered_acc_info[0][5] if len(filtered_acc_info) > 0 else None,
+                        })
+
+                    return data
+
                 retries += 1
                 waitTimeMs = WAIT_TIME_MS * (2 ** retries)
-                sleep(waitTimeMs / 1000)
+                sleep(100)
+                print("Data was not retrieved in this iteration, trying again...")
+
             else:
-                data = []
-                for item in exportStatus["data"]:
+                raise Exception(
+                    f"Failed to fetch export status. HTTP error {exportStatusResponse.status_code}: {exportStatusResponse.text}")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
 
-                    filtered_list = [d for d in box_ids if d.get(
-                        'location_id') == item["location_id"]]
-
-                    filtered_acc_info = [
-                        d for d in store_acc_info if str(d[0]) == str(filtered_list[0]["id"])]
-
-                    data.append({
-                        "id": str(item["location_id"]) + "-" + item["period_start"],
-                        "location_id": item["location_id"],
-                        "period_start": item["period_start"],
-                        "status": item.get("status"),
-                        "ots_count": item.get("ots_count"),
-                        "watcher_count": item.get("watcher_count"),
-                        "duration": item.get("duration"),
-                        # ---ADDED
-                        "display_pk": filtered_acc_info[0][1] if len(filtered_acc_info) > 0 else None,
-                        "retailer_id": filtered_acc_info[0][2] if len(filtered_acc_info) > 0 else None,
-                        "store_id": filtered_acc_info[0][3] if len(filtered_acc_info) > 0 else None,
-                        "region": filtered_acc_info[0][4] if len(filtered_acc_info) > 0 else None,
-                        "touchpoint_id": filtered_acc_info[0][5] if len(filtered_acc_info) > 0 else None,
-                    })
-
-                return data
-        else:
-            raise Exception(
-                f"Failed to fetch export status. HTTP error {exportStatusResponse.status_code}: {exportStatusResponse.text}")
 
 @app.route("/")
 def main():
