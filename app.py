@@ -12,8 +12,7 @@ from sqlalchemy.orm import sessionmaker
 
 app = Flask(__name__)
 
-end = datetime.now().replace(microsecond=0)
-start = end - timedelta(days=1)
+
 def chunk(arr, size):
     return [arr[i:i+size] for i in range(0, len(arr), size)]
 
@@ -182,6 +181,10 @@ def getOTSData(box_ids, store_acc_info):
 
 @app.route("/")
 def main():
+
+    end = datetime.now().replace(microsecond=0)
+    start = end - timedelta(days=1)
+
     # /////////////////////////////////////////////////////////////////////////////////////
     # GETTING All BOX ID's
     # /////////////////////////////////////////////////////////////////////////////////////
