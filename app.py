@@ -108,6 +108,7 @@ def getViewersData(box_ids, store_acc_info):
                         "touchpoint_id": filtered_acc_info[0][5] if len(filtered_acc_info) > 0 else None,
                     })
 
+                print(data)
                 return data
         else:
             raise Exception(
